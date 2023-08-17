@@ -4,12 +4,15 @@ const cors = require('cors');
 const express = require('express');
 
 const app = express();
-const { PORT = 3005 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const mongoose = require('mongoose');
 
 const helmet = require('helmet');
 const { celebrate, Joi, errors } = require('celebrate');
+
+const limiter = require('./middlewares/limiter'); // число запросов с одного IP в единицу времени
+const serverError = require('./middlewares/serverError');
 
 // импортируем роутеры
 const routes = require('./routes');
@@ -18,7 +21,7 @@ const { createUser, login } = require('./controllers/user');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 // подключаемся к серверу mongo
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
 });
 
@@ -31,11 +34,7 @@ app.use(express.json());
 
 app.use(helmet());
 
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
+app.use(limiter);
 
 app.post('/signin', express.json(), celebrate({
   body: Joi.object().keys({
@@ -57,19 +56,7 @@ app.use('/', routes);
 
 app.use(errors());
 app.use(errorLogger);
-app.use((e, req, res, next) => {
-  const { statusCode = 500, message } = e;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  console.log(e);
-  next();
-});
+app.use(serverError); // централизолванная обработка ошибок
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает

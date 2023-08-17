@@ -12,7 +12,6 @@ const {
 const { validationCreateCard, validationCard } = require('../utils/validation');
 
 router.get('/', getAllMovies);
-
 router.delete('/:movieId', validationCard, deleteMovie);
 
 router.post('/', express.json(), validationCreateCard, createMovie);

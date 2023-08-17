@@ -14,6 +14,7 @@ routes.use('/users', auth, userRouter);
 routes.use('/cards', auth, movieRouter);
 routes.post('/signup', express.json(), validationUserSignup, createUser);
 routes.post('/signin', express.json(), validationUserSignin, login);
+
 routes.use('*', auth, (req, res, next) => {
   next(new NotFoundError('URL не существует'));
 });

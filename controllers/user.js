@@ -70,7 +70,13 @@ const updateUser = (req, res, next) => {
     .catch((e) => {
       if (e.name === 'ValidationError') {
         next(new BadRequestError('Неверно заполнены поля'));
-      } next(e);
+        return;
+      }
+      if (e.code === 11000) {
+        next(new ConflictError('Пользователь уже существует'));
+        return;
+      }
+      next(e);
     });
 };
 

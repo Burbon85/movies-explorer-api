@@ -62,16 +62,18 @@ const createMovie = (req, res, next) => {
 
 // Удаление карточки
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.cardId)
+  const { _id: movieId } = req.params;
+  const { _id: userId } = req.user;
+  Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Такой карточки нет');
       }
-      if (`${movie.owner}` !== req.user._id) {
+      if (`${movie.owner}` !== userId) {
         throw new ForbiddenError('Нет доступа на удаление чужой карточки');
       }
-      return Movie.deleteOne()
-        .then(() => res.status(OK).send(movie));
+      return Movie.deleteOne(movieId)
+        .then(() => res.status(OK).send(movieId));
     })
     .catch((e) => {
       if (e.name === 'CastError') {
