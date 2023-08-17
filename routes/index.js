@@ -11,7 +11,7 @@ const userRouter = require('./user');
 const movieRouter = require('./movie');
 
 routes.use('/users', auth, userRouter);
-routes.use('/cards', auth, movieRouter);
+routes.use('/movies', auth, movieRouter);
 routes.post('/signup', express.json(), validationUserSignup, createUser);
 routes.post('/signin', express.json(), validationUserSignin, login);
 
