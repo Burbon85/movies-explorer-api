@@ -72,8 +72,8 @@ const deleteMovie = (req, res, next) => {
       if (`${movie.owner}` !== userId) {
         throw new ForbiddenError('Нет доступа на удаление чужой карточки');
       }
-      return Movie.deleteOne(movieId)
-        .then(() => res.status(OK).send(movieId));
+      return Movie.deleteOne({ _id: movieId })
+        .then(() => res.status(OK).send({ _id: movieId }));
     })
     .catch((e) => {
       if (e.name === 'CastError') {
