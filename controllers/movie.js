@@ -62,25 +62,21 @@ const createMovie = (req, res, next) => {
 
 // Удаление карточки
 const deleteMovie = (req, res, next) => {
-  const { _id: movieId } = req.params;
-  const { _id: userId } = req.user;
-  Movie.findById(movieId)
+  Movie.findById(req.params.movieId)
+    .orFail(() => new NotFoundError('Карточка не найдена'))
     .then((movie) => {
-      if (!movie) {
-        throw new NotFoundError('Такой карточки нет');
+      if (`${movie.owner}` !== req.user._id) {
+        throw new ForbiddenError('Нет доступа на удаление карточки');
       }
-      if (`${movie.owner}` !== userId) {
-        throw new ForbiddenError('Нет доступа на удаление чужой карточки');
-      }
-      return Movie.deleteOne({ _id: movieId })
-        .then(() => res.status(OK).send({ _id: movieId }));
+      return movie.deleteOne()
+        .then(() => res.status(200).send(movie));
     })
-    .catch((e) => {
-      if (e.name === 'CastError') {
-        next(new BadRequestError('Неверно заполнены поля'));
-        console.log(e);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Невалидный id'));
         return;
-      } next(e);
+      }
+      next(err);
     });
 };
 
