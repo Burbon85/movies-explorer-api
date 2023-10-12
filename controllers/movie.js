@@ -69,7 +69,7 @@ const deleteMovie = (req, res, next) => {
         throw new ForbiddenError('Нет доступа на удаление карточки');
       }
       return movie.deleteOne()
-        .then(() => res.status(200).send(movie));
+        .then(() => res.status(OK).send(movie));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
