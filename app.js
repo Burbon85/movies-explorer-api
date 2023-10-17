@@ -39,7 +39,7 @@ app.use(limiter);
 app.post('/signin', express.json(), celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().min(8).required().alphanum(),
+    password: Joi.string().min(8).required(),
   }),
 }), login);
 app.post('/signup', express.json(), celebrate({
